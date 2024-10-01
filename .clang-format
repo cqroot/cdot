@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+---
+Language: Cpp
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AllowShortFunctionsOnASingleLine: None
+BreakBeforeBraces: Linux
+Cpp11BracedListStyle: false
+IndentWidth: 4
+InsertBraces: true
