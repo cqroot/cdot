@@ -1,3 +1,4 @@
+#include "config.h"
 #include "define.h"
 #include "dotfile.h"
 #include "status.h"
@@ -7,9 +8,12 @@
 
 void show_help_msg(void)
 {
-    printf("Dotfiles management tool.\n\n");
+    printf("CDOT - Dotfiles management tool.\n");
+    printf("\n");
     printf("Usage:\n");
-    printf("    cdot <command>\n\n");
+    printf("    cdot [-v | --version] [-h | --help]\n");
+    printf("         <command>\n");
+    printf("\n");
     printf("The commands are:\n");
     printf("    status  Show the dotfiles status\n");
 }
@@ -21,6 +25,17 @@ int main(int argc, char *argv[])
     if (argc == 1) {
         show_help_msg();
         return RET_ERR_PARAM;
+    }
+
+    if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+        show_help_msg();
+        return RET_OK;
+    }
+
+    if (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version")) {
+        printf("cdot %d.%d.%d\n", CDOT_VERSION_MAJOR, CDOT_VERSION_MINOR,
+               CDOT_VERSION_PATCH);
+        return RET_OK;
     }
 
     Dotfile *dotfiles = NULL;
