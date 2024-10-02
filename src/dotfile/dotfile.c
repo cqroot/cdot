@@ -45,17 +45,31 @@ RetCode read_dotfiles_from_json(Dotfile **dotfiles, int *dotfile_cnt)
     int arr_size = cJSON_GetArraySize(cjson);
 
     *dotfiles = (Dotfile *)malloc(arr_size * sizeof(Dotfile));
-    *dotfile_cnt = arr_size;
     if (!*dotfiles) {
         fprintf(stderr, COLOR_FG_RED "ERROR: " COLOR_RESET
                                      "allocate memory for dotfiles failed\n");
         return RET_ERR_MALLOC;
     }
 
+    *dotfile_cnt = 0;
     for (int i = 0; i < arr_size; ++i) {
-        strcpy((*dotfiles)[i].name, cJSON_GetObjectItem(arr_item, "name")->valuestring);
-        strcpy((*dotfiles)[i].exec, cJSON_GetObjectItem(arr_item, "exec")->valuestring);
+        cJSON *item = NULL;
 
+        item = cJSON_GetObjectItem(arr_item, "name");
+        if (!item && !cJSON_IsString(item)) {
+            arr_item = arr_item->next;
+            continue;
+        }
+        strcpy((*dotfiles)[*dotfile_cnt].name, item->valuestring);
+
+        item = cJSON_GetObjectItem(arr_item, "exec");
+        if (!item && !cJSON_IsString(item)) {
+            arr_item = arr_item->next;
+            continue;
+        }
+        strcpy((*dotfiles)[*dotfile_cnt].exec, item->valuestring);
+
+        (*dotfile_cnt)++;
         arr_item = arr_item->next;
     }
 
