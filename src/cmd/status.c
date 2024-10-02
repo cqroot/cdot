@@ -1,31 +1,45 @@
 #include "status.h"
 #include "color.h"
+#include "define.h"
+#include "dotfile.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-bool is_command_exist(char *command)
+RetCode show_dotfile_status(const Dotfile *dotfile,
+                            const DotfileAlignParams *ap)
 {
-    char whichCommand[256] = { 0 };
-    sprintf(whichCommand, "which %s >/dev/null 2>&1", command);
-    return !system(whichCommand);
+    CHECK_PARAM_NOT_NULL(dotfile);
+    CHECK_PARAM_NOT_NULL(ap);
+
+    printf("  %s%*s  %s%*s  %s%*s  %s\n", dotfile->name,
+           (int)(ap->name_len - strlen(dotfile->name)), "", dotfile->exec,
+           (int)(ap->exec_len - strlen(dotfile->exec)), "", dotfile->path,
+           (int)(ap->path_len - strlen(dotfile->path)), "",
+           df_status_string(df_get_status(dotfile)));
+
+    return RET_OK;
 }
 
-void show_dotfile_status(Dotfile dotfile)
+RetCode run_status_cmd(void)
 {
-    printf("%-12s: ", dotfile.name);
-    if (is_command_exist(dotfile.exec)) {
-        printf(COLOR_FG_GREEN "OK\n" COLOR_RESET);
-    } else {
-        printf(COLOR_FG_RED "FAIL\n" COLOR_RESET);
-    }
-}
-
-RetCode run_status_cmd(Dotfile *dotfiles, size_t len)
-{
-    for (size_t i = 0; i < len; ++i) {
-        show_dotfile_status(dotfiles[i]);
+    Dotfile *dotfiles = NULL;
+    size_t count = 0;
+    DotfileAlignParams align_params = { 0 };
+    RetCode ret = df_read_from_json(&dotfiles, &count, &align_params);
+    if (ret != RET_OK) {
+        return ret;
     }
 
+    printf(" " COLOR_BG_BLUE COLOR_FG_BLACK
+           " NAME%*s  EXEC%*s  PATH%*s  STATUS         " COLOR_RESET "\n",
+           (int)align_params.name_len - 4, "", (int)align_params.exec_len - 4,
+           "", (int)align_params.path_len - 4, "");
+    for (size_t i = 0; i < count; ++i) {
+        (void)show_dotfile_status(&dotfiles[i], &align_params);
+    }
+
+    free(dotfiles);
     return RET_OK;
 }

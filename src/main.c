@@ -38,21 +38,12 @@ int main(int argc, char *argv[])
         return RET_OK;
     }
 
-    Dotfile *dotfiles = NULL;
-    int dotfile_cnt = 0;
-    ret = read_dotfiles_from_json(&dotfiles, &dotfile_cnt);
-    if (ret != RET_OK) {
-        return ret;
-    }
-
     // Command: status
     if (!strcmp(argv[1], "status")) {
-        ret = run_status_cmd(dotfiles, dotfile_cnt);
-        free(dotfiles);
+        ret = run_status_cmd();
         return ret;
     }
 
-    free(dotfiles);
     show_help_msg();
     return RET_ERR_PARAM;
 }
